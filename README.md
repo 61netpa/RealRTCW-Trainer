@@ -9,4 +9,11 @@ RealRCTW utility app that has multiple Quality of Life features using [PyMeow](h
 ## Usage
 1. Launch RealRCTW from Steam / launcher of your choice.
 2. Load into the game.
-3. Run the Main.py.
+3. Run the Main.py as an administrator (otherwise it won't find the process).
+
+## Features
+- Infinite Health
+- Infinite Armor
+- Infinite Stamina
+- Ammo Modifier
+- Gun Mods
