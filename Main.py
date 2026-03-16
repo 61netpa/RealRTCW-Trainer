@@ -141,28 +141,28 @@ class Trainer:
             if (Weapon and Weapon[0] and Weapon[0] != "Unknown"):
                 if (Type != "Both"):
                     if (Weapon[1]):
-                        PrimaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets[Weapon[0]], Type);
+                        PrimaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0]], Type);
                         if (self.IsAddressValid(PrimaryWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, PrimaryWeaponAddress, Value);
-                        SecondaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets[Weapon[0].replace("Dual ", "")], Type);
+                        SecondaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0].replace("Dual ", "")], Type);
                         if (self.IsAddressValid(SecondaryWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, SecondaryWeaponAddress, Value);
                     else:
-                        CurrentWeaponAddress = self.Game.QaGameBase + getattr(Offsets[Weapon[0]], Type);
+                        CurrentWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0]], Type);
                         if (self.IsAddressValid(CurrentWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, CurrentWeaponAddress, Value);
                 else:
                     if (Weapon[1]):
-                        PrimaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0]].Bullets;
+                        PrimaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Bullets;
                         if (self.IsAddressValid(PrimaryBulletsWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, PrimaryBulletsWeaponAddress, Value);
-                        PrimaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0]].Ammo;
+                        PrimaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Ammo;
                         if (self.IsAddressValid(PrimaryAmmoWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, PrimaryAmmoWeaponAddress, Value);
-                        SecondaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0].replace("Dual ", "")].Bullets;
+                        SecondaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0].replace("Dual ", "")].Bullets;
                         if (self.IsAddressValid(SecondaryBulletsWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, SecondaryBulletsWeaponAddress, Value);
-                        SecondaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0].replace("Dual ", "")].Ammo;
+                        SecondaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0].replace("Dual ", "")].Ammo;
                         if (self.IsAddressValid(SecondaryAmmoWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, SecondaryAmmoWeaponAddress, Value);
                     else:
