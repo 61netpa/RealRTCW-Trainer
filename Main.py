@@ -166,10 +166,10 @@ class Trainer:
                         if (self.IsAddressValid(SecondaryAmmoWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, SecondaryAmmoWeaponAddress, Value);
                     else:
-                        CurrentBulletsWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0]].Bullets;
+                        CurrentBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Bullets;
                         if (self.IsAddressValid(CurrentBulletsWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, CurrentBulletsWeaponAddress, Value);
-                        CurrentAmmoWeaponAddress = self.Game.QaGameBase + Offsets[Weapon[0]].Ammo;
+                        CurrentAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Ammo;
                         if (self.IsAddressValid(CurrentAmmoWeaponAddress)):
                             pyMeow.w_int(self.Game.Process, CurrentAmmoWeaponAddress, Value);
         except Exception as ex:
@@ -383,5 +383,5 @@ class Trainer:
         self.BuildUI();
         UI.start_dearpygui();
 
-if __name__ == "__main__":
+if (__name__ == "__main__"):
     Trainer().Run();
