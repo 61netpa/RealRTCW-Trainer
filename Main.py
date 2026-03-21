@@ -7,13 +7,13 @@ import dearpygui.dearpygui as UI;
 
 PROCESSNAME = "RealRTCW.x64.exe";
 QAGAMEDLL = "qagame_sp_x64.dll";
-Weapons = { 0: "None", 1: "Knife", 2: "Luger", 3: "Luger Silencer", 4: "Colt", 5: "TT33", 6: "1905 Revolver", 7: "HDM", 10: "MP40", 14: "MP34", 12: "Sten", 11: "Thompson", 13: "PPSH41", 15: "Kar98", 43: "Kar98", 16: "Snooper Rifle", 44: "Snooper Rifle", 17: "Mosin Nagant", 23: "FG42", 47: "FG42", 22: "Stg44", 24: "BAR", 33: "Grenades", 34: "Pineapples", 35: "Dynamite", 39: "Poison Gas", 25: "Ithaca", 20: "G43", 19: "M1 Garand", 48: "M1 Garand Grenade", 29: "Panzerfaust", 30: "Flamethrower", 27: "Browning", 28: "MG42", 31: "Venom Gun", 32: "Tesla" };
-DualWeapons = { 8: "Dual Colt", 9: "Dual TT33" };
 
 WINDOWWIDTH, WINDOWHEIGHT = 630, 335;
 TABPANELWIDTH, TABPANELHEIGHT = 110, 308;
 TABWIDTH, TABHEIGHT = 505, 308;
 TABBUTTONWIDTH, TABBUTTONHEIGHT = 95, 20;
+
+Weapons = { 0: "None", 1: "Knife", 2: "Luger", 3: "Luger Silencer", 4: "Colt", 8: "Dual Colt", 5: "TT33", 9: "Dual TT33", 6: "1905 Revolver", 7: "HDM", 10: "MP40", 14: "MP34", 12: "Sten", 11: "Thompson", 13: "PPSH41", 15: "Kar98", 43: "Kar98", 16: "Snooper Rifle", 44: "Snooper Rifle", 17: "Mosin Nagant", 23: "FG42", 47: "FG42", 22: "Stg44", 24: "BAR", 34: "Grenades", 35: "Pineapples", 36: "Dynamite", 39: "Poison Gas", 25: "Ithaca", 20: "G43", 19: "M1 Garand", 48: "M1 Garand Grenade", 30: "Panzerfaust", 31: "Flamethrower", 28: "Browning", 29: "MG42", 32: "Venom Gun", 33: "Tesla" };
 DefaultConfig = {
     "HealthValue": 100,
     "ArmorValue": 100,
@@ -35,8 +35,8 @@ class GameProcess:
 
 @dataclass
 class TabEntry:
-    windowTag: str;
-    buttonTag: str;
+    WindowTag: str;
+    ButtonTag: str;
 
 @dataclass
 class WeaponOffsets:
@@ -44,33 +44,33 @@ class WeaponOffsets:
     Ammo: int | None = None;
 
 Offsets = {
-    "Health": 0x184B74, "Armor": 0x12C3D8, "CurrentWeapon": 0x12C3A4, "Stamina": 0x12C814, "WeaponAction": 0x12C32C,
+    "Health": 0x1861B4, "Armor": 0x12B618, "CurrentWeapon": 0x12B5E4, "Stamina": 0x12BA94, "WeaponAction": 0x12B56C,
     "Weapons": {
         # Knives
-        "Knife": WeaponOffsets(0x12C5D4, 0x12C5D4),
+        "Knife": WeaponOffsets(0x12B814, 0x12B814),
         # Pistols
-        "Luger": WeaponOffsets(0x12C5D8, 0x12C4D8), "Luger Silencer": WeaponOffsets(0x12C5DC, 0x12C4D8), "Colt": WeaponOffsets(0x12C5E0, 0x12C4E0),
-        "Dual Colt": WeaponOffsets(0x12C5F0, 0x12C4E0), "TT33": WeaponOffsets(0x12C5E4, 0x12C4E4), "Dual TT33": WeaponOffsets(0x12C5F4, 0x12C4E4),
-        "1905 Revolver": WeaponOffsets(0x12C5E8, 0x12C4E8), "HDM": WeaponOffsets(0x12C5EC, 0x12C4EC),
+        "Luger": WeaponOffsets(0x12B818, 0x12B718), "Luger Silencer": WeaponOffsets(0x12B81C, 0x12B718), "Colt": WeaponOffsets(0x12B820, 0x12B720),
+        "Dual Colt": WeaponOffsets(0x12B830, 0x12B720), "TT33": WeaponOffsets(0x12B824, 0x12B724), "Dual TT33": WeaponOffsets(0x12B834, 0x12B724),
+        "1905 Revolver": WeaponOffsets(0x12B828, 0x12B728), "HDM": WeaponOffsets(0x12B82C, 0x12B72C),
         # SMGs
-        "MP40": WeaponOffsets(0x12C5F8, 0x12C4D8), "MP34": WeaponOffsets(0x12C5F8, 0x12C4D8), "Sten": WeaponOffsets(0x12C500, 0x12C4D8),
-        "Thompson": WeaponOffsets(0x12C5FC, 0x12C4E4), "PPSH41": WeaponOffsets(0x12C604, 0x12C4E4),
+        "MP40": WeaponOffsets(0x12B838, 0x12B718), "MP34": WeaponOffsets(0x12B848, 0x12B718), "Sten": WeaponOffsets(0x12B840, 0x12B718),
+        "Thompson": WeaponOffsets(0x12B83C, 0x12B720), "PPSH41": WeaponOffsets(0x12B844, 0x12B724),
         # Rifles
-        "Kar98": WeaponOffsets(0x12C60C, 0x12C50C), "Snooper Rifle": WeaponOffsets(0x12C610, 0x12C510), "Mosin Nagant": WeaponOffsets(0x12C614, 0x12C514),
+        "Kar98": WeaponOffsets(0x12B84C, 0x12B74C), "Snooper Rifle": WeaponOffsets(0x12B850, 0x12B750), "Mosin Nagant": WeaponOffsets(0x12B854, 0x12B754),
         # Assault Rifles
-        "FG42": WeaponOffsets(0x12C62C, 0x12C50C), "Stg44": WeaponOffsets(0x12C628, 0x12C528), "BAR": WeaponOffsets(0x12C630, 0x12C51C),
+        "FG42": WeaponOffsets(0x12B86C, 0x12B74C), "Stg44": WeaponOffsets(0x12B868, 0x12B768), "BAR": WeaponOffsets(0x12B870, 0x12B75C),
         # Grenades
-        "Grenades": WeaponOffsets(0x12C654, 0x12C654), "Pineapples": WeaponOffsets(0x12C658, 0x12C658), "Dynamite": WeaponOffsets(0x12C65C, 0x12C65C),
-        "Poison Gas": WeaponOffsets(0x12C66C, 0x12C66C),
+        "Grenades": WeaponOffsets(0x12B898, 0x12B898), "Pineapples": WeaponOffsets(0x12B89C, 0x12B89C), "Dynamite": WeaponOffsets(0x12B8A0, 0x12B8A0),
+        "Poison Gas": WeaponOffsets(0x0, 0x0), # I currently don't have this item since it is given in a specific chapter and the saves are gone.
         # Shotguns
-        "Ithaca": WeaponOffsets(0x12C634, 0x12C534),
+        "Ithaca": WeaponOffsets(0x12B874, 0x12B774),
         # Automatic Rifles
-        "G43": WeaponOffsets(0x12C620, 0x12C50C), "M1 Garand": WeaponOffsets(0x12C61C, 0x12C51C), "M1 Garand Grenade": WeaponOffsets(0x12C690, 0x12C590),
+        "G43": WeaponOffsets(0x12B860, 0x12B74C), "M1 Garand": WeaponOffsets(0x12B85C, 0x12B75C), "M1 Garand Grenade": WeaponOffsets(0x12B8D4, 0x12B7D4),
         # Heavy Weapons
-        "Panzerfaust": WeaponOffsets(0x12C644, 0x12C544), "Flamethrower": WeaponOffsets(0x12C648, 0x12C648), "MG42": WeaponOffsets(0x12C640, 0x12C540),
-        "Browning": WeaponOffsets(0x12C63C, 0x12C540),
+        "Panzerfaust": WeaponOffsets(0x12B888, 0x12B788), "Flamethrower": WeaponOffsets(0x12B88C, 0x12B88C), "MG42": WeaponOffsets(0x12B884, 0x12B784),
+        "Browning": WeaponOffsets(0x12B880, 0x12B784),
         # Secret Weapons
-        "Venom Gun": WeaponOffsets(0x12C64C, 0x12C540), "Tesla": WeaponOffsets(0x12C650, 0x12C650)
+        "Venom Gun": WeaponOffsets(0x12B890, 0x12B784), "Tesla": WeaponOffsets(0x12B894, 0x12B894)
     },
     "Inventory": {
 
@@ -119,59 +119,35 @@ class Trainer:
             print(f"Couldn't set armor, Error: {ex}");
             return;
 
-    def GetCurrentWeapon(self) -> list:
-        if (not self.Game.IsOpen or not self.Game.QaGameBase): return ["Unknown", None];
+    def GetCurrentWeapon(self) -> str:
+        if (not self.Game.IsOpen or not self.Game.QaGameBase): return "Unknown";
         try:
             WeaponAddress = self.Game.QaGameBase + Offsets["CurrentWeapon"];
             if (self.IsAddressValid(WeaponAddress)):
                 Weapon = pyMeow.r_int64(self.Game.Process, WeaponAddress);
                 if (Weapon in Weapons):
-                    return [Weapons[Weapon], False];
-                elif (Weapon in DualWeapons):
-                    return [DualWeapons[Weapon], True];
-            return ["Unknown", None];
+                    return Weapons[Weapon];
+            return "Unknown";
         except Exception as ex:
             print(f"Couldn't get the current weapon, Error: {ex}");
-            return ["Unknown", None];
+            return "Unknown";
 
     def SetAmmo(self, WeaponValue: int | None, Value: int, Type: str) -> None:
         if (not self.Game.IsOpen or not self.Game.QaGameBase): return;
         try:
             Weapon = self.GetCurrentWeapon();
-            if (Weapon and Weapon[0] and Weapon[0] != "Unknown"):
+            if (Weapon and Weapon is not None and Weapon != "Unknown"):
                 if (Type != "Both"):
-                    if (Weapon[1]):
-                        PrimaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0]], Type);
-                        if (self.IsAddressValid(PrimaryWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, PrimaryWeaponAddress, Value);
-                        SecondaryWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0].replace("Dual ", "")], Type);
-                        if (self.IsAddressValid(SecondaryWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, SecondaryWeaponAddress, Value);
-                    else:
-                        CurrentWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon[0]], Type);
-                        if (self.IsAddressValid(CurrentWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, CurrentWeaponAddress, Value);
+                    CurrentWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon], Type);
+                    if (self.IsAddressValid(CurrentWeaponAddress)):
+                        pyMeow.w_int(self.Game.Process, CurrentWeaponAddress, Value);
                 else:
-                    if (Weapon[1]):
-                        PrimaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Bullets;
-                        if (self.IsAddressValid(PrimaryBulletsWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, PrimaryBulletsWeaponAddress, Value);
-                        PrimaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Ammo;
-                        if (self.IsAddressValid(PrimaryAmmoWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, PrimaryAmmoWeaponAddress, Value);
-                        SecondaryBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0].replace("Dual ", "")].Bullets;
-                        if (self.IsAddressValid(SecondaryBulletsWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, SecondaryBulletsWeaponAddress, Value);
-                        SecondaryAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0].replace("Dual ", "")].Ammo;
-                        if (self.IsAddressValid(SecondaryAmmoWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, SecondaryAmmoWeaponAddress, Value);
-                    else:
-                        CurrentBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Bullets;
-                        if (self.IsAddressValid(CurrentBulletsWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, CurrentBulletsWeaponAddress, Value);
-                        CurrentAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon[0]].Ammo;
-                        if (self.IsAddressValid(CurrentAmmoWeaponAddress)):
-                            pyMeow.w_int(self.Game.Process, CurrentAmmoWeaponAddress, Value);
+                    CurrentBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon].Bullets;
+                    if (self.IsAddressValid(CurrentBulletsWeaponAddress)):
+                        pyMeow.w_int(self.Game.Process, CurrentBulletsWeaponAddress, Value);
+                    CurrentAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon].Ammo;
+                    if (self.IsAddressValid(CurrentAmmoWeaponAddress)):
+                        pyMeow.w_int(self.Game.Process, CurrentAmmoWeaponAddress, Value);
         except Exception as ex:
             print(f"Couldn't set ammo, Error: {ex}");
             return;
@@ -203,7 +179,7 @@ class Trainer:
 
     def HideAllTabs(self) -> None:
         for entry in self.Tabs.values():
-            UI.hide_item(entry.windowTag);
+            UI.hide_item(entry.WindowTag);
 
     def SwitchTab(self, Name: str) -> None:
         self.HideAllTabs();
@@ -221,8 +197,8 @@ class Trainer:
     def DeleteTab(self, Name: str) -> None:
         if (Name not in self.Tabs): return;
         entry = self.Tabs.pop(Name);
-        UI.delete_item(entry.windowTag);
-        UI.delete_item(entry.buttonTag);
+        UI.delete_item(entry.WindowTag);
+        UI.delete_item(entry.ButtonTag);
 
     def AddToggle(self, Parent: str, Tag: str, Label: str) -> str | None:
         if (not Tag or Tag in self.Options): return None;
@@ -276,7 +252,7 @@ class Trainer:
 
     def LoopAmmo(self):
         while UI.is_dearpygui_running():
-            UI.set_value("CurrentWeaponLabel", f"Current Weapon: {self.GetCurrentWeapon()[0]}");
+            UI.set_value("CurrentWeaponLabel", f"Current Weapon: {self.GetCurrentWeapon()}");
             if (self.GetValue("AmmoToggle")):
                 self.SetAmmo(1, self.GetValue("AmmoValue"), self.GetValue("AmmoType"));
             time.sleep(0.1);
@@ -338,15 +314,15 @@ class Trainer:
             self.BuildSettingsTab(SettingsTab);
             self.SwitchTab(PlayerTab);
 
-            def CheckDrag(_, Data):
-                if UI.is_mouse_button_down(0):
+            def CheckDrag(_, Data: dict):
+                if (UI.is_mouse_button_down(0)):
                     Y = Data[1];
                     if (-2 <= Y <= 19 and not self.Window["Dragging"]):
                         self.Window["Dragging"] = True;
                 else:
                     self.Window["Dragging"] = False;
 
-            def Drag(_, Data):
+            def Drag(_, Data: dict):
                 if (self.Window["Dragging"]):
                     Current = time.time();
                     CalculatedTime = Current - self.Window["UpdateTime"];
@@ -363,7 +339,11 @@ class Trainer:
                         UI.configure_viewport(Viewport, x_pos = FinalX, y_pos = FinalY);
                         self.Window["UpdateTime"] = Current;
 
+            def ToggleViewport():
+                UI.minimize_viewport();
+
             with UI.handler_registry():
+                UI.add_key_press_handler(key = 161, callback = ToggleViewport)
                 UI.add_mouse_drag_handler(0, callback = Drag);
                 UI.add_mouse_move_handler(callback = CheckDrag);
 
