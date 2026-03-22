@@ -13,7 +13,7 @@ TABPANELWIDTH, TABPANELHEIGHT = 110, 308;
 TABWIDTH, TABHEIGHT = 505, 308;
 TABBUTTONWIDTH, TABBUTTONHEIGHT = 95, 20;
 
-Weapons = { 0: "None", 1: "Knife", 2: "Luger", 3: "Luger Silencer", 4: "Colt", 8: "Dual Colt", 5: "TT33", 9: "Dual TT33", 6: "1905 Revolver", 7: "HDM", 10: "MP40", 14: "MP34", 12: "Sten", 11: "Thompson", 13: "PPSH41", 15: "Kar98", 43: "Kar98", 16: "Snooper Rifle", 44: "Snooper Rifle", 17: "Mosin Nagant", 23: "FG42", 47: "FG42", 22: "Stg44", 24: "BAR", 34: "Grenades", 35: "Pineapples", 36: "Dynamite", 39: "Poison Gas", 25: "Ithaca", 20: "G43", 19: "M1 Garand", 48: "M1 Garand Grenade", 30: "Panzerfaust", 31: "Flamethrower", 28: "Browning", 29: "MG42", 32: "Venom Gun", 33: "Tesla" };
+Weapons = { 0: "None", 1: "Knife", 2: "Luger", 3: "Luger Silencer", 4: "Colt", 8: "Dual Colt", 5: "TT33", 9: "Dual TT33", 6: "1905 Revolver", 7: "HDM", 10: "MP40", 14: "MP34", 12: "Sten", 11: "Thompson", 13: "PPSH41", 15: "Kar98", 44: "Kar98", 16: "Snooper Rifle", 45: "Snooper Rifle", 17: "Mosin Nagant", 23: "FG42", 47: "FG42", 22: "Stg44", 24: "BAR", 34: "Grenades", 35: "Pineapples", 36: "Dynamite", 39: "Poison Gas", 25: "Ithaca", 20: "G43", 19: "M1 Garand", 48: "M1 Garand Grenade", 30: "Panzerfaust", 31: "Flamethrower", 28: "Browning", 29: "MG42", 32: "Venom Gun", 33: "Tesla" };
 DefaultConfig = {
     "HealthValue": 100,
     "ArmorValue": 100,
