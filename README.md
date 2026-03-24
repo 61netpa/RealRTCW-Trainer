@@ -1,3 +1,5 @@
+# THIS IS CURRENTLY BROKEN AS OF 25TH MARCH 2026 DUE TO THE LATEST UPDATE.
+
 # RealRTCW-Trainer
 RealRTCW utility app that has multiple Quality of Life features using [PyMeow](https://github.com/qb-0/pyMeow).
 
