@@ -20,12 +20,10 @@ class Offset:
     Pattern: str;
     Skip: int;
 
-OffsetBase = {};
-
 class Dumper:
     def __init__(self):
         self.Game = GameProcess();
-        self.Offsets = OffsetBase;
+        self.Offsets: dict = {};
         self.Patterns: dict = self.GetPatterns();
         self.PlayerPointer: int = self.GetPlayerPointer();
 
