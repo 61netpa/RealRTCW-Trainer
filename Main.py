@@ -1,19 +1,22 @@
 from __future__ import annotations;
 from dataclasses import dataclass;
+import os;
+import json;
 import time;
 import threading;
 import pyMeow;
 import dearpygui.dearpygui as UI;
 
-PROCESSNAME = "RealRTCW.x64.exe";
-QAGAMEDLL = "qagame_sp_x64.dll";
+ProcessName = "RealRTCW.x64.exe";
+QaGameDLL = "qagame_sp_x64.dll";
 
-WINDOWWIDTH, WINDOWHEIGHT = 630, 335;
-TABPANELWIDTH, TABPANELHEIGHT = 110, 308;
-TABWIDTH, TABHEIGHT = 505, 308;
-TABBUTTONWIDTH, TABBUTTONHEIGHT = 95, 20;
+WindowWidth, WindowHeight = 630, 335;
+TabPanelWidth, TabPanelHeight = 110, 308;
+TabWidth, TabHeight = 505, 308;
+TabButtonWidth, TabButtonHeight = 95, 20;
 
 Weapons = { 0: "None", 1: "Knife", 2: "Luger", 3: "Luger Silencer", 4: "Colt", 8: "Dual Colt", 5: "TT33", 9: "Dual TT33", 6: "1905 Revolver", 7: "HDM", 10: "MP40", 14: "MP34", 12: "Sten", 11: "Thompson", 13: "PPSH41", 15: "Kar98", 44: "Kar98", 16: "Snooper Rifle", 45: "Snooper Rifle", 17: "Mosin Nagant", 23: "FG42", 47: "FG42", 22: "Stg44", 24: "BAR", 34: "Grenades", 35: "Pineapples", 36: "Dynamite", 39: "Poison Gas", 25: "Ithaca", 20: "G43", 19: "M1 Garand", 48: "M1 Garand Grenade", 30: "Panzerfaust", 31: "Flamethrower", 28: "Browning", 29: "MG42", 32: "Venom Gun", 33: "Tesla" };
+Ammos = { ("Luger Silencer", "MP40", "MP34", "Sten"): 2, ("Dual Colt", "Thompson"): 4, ("Dual TT33", "PPSH41"): 5, ("Kar98", "FG42", "G43"): 15, ("BAR"): 19, ("Browning", "Venom Gun"): 29 }
 DefaultConfig = {
     "HealthValue": 100,
     "ArmorValue": 100,
@@ -38,137 +41,127 @@ class TabEntry:
     WindowTag: str;
     ButtonTag: str;
 
-@dataclass
-class WeaponOffsets:
-    Bullets: int;
-    Ammo: int | None = None;
-
-Offsets = {
-    "Health": 0x1861B4, "Armor": 0x12B618, "CurrentWeapon": 0x12B5E4, "Stamina": 0x12BA94, "WeaponAction": 0x12B56C,
-    "Weapons": {
-        # Knives
-        "Knife": WeaponOffsets(0x12B814, 0x12B814),
-        # Pistols
-        "Luger": WeaponOffsets(0x12B818, 0x12B718), "Luger Silencer": WeaponOffsets(0x12B81C, 0x12B718), "Colt": WeaponOffsets(0x12B820, 0x12B720),
-        "Dual Colt": WeaponOffsets(0x12B830, 0x12B720), "TT33": WeaponOffsets(0x12B824, 0x12B724), "Dual TT33": WeaponOffsets(0x12B834, 0x12B724),
-        "1905 Revolver": WeaponOffsets(0x12B828, 0x12B728), "HDM": WeaponOffsets(0x12B82C, 0x12B72C),
-        # SMGs
-        "MP40": WeaponOffsets(0x12B838, 0x12B718), "MP34": WeaponOffsets(0x12B848, 0x12B718), "Sten": WeaponOffsets(0x12B840, 0x12B718),
-        "Thompson": WeaponOffsets(0x12B83C, 0x12B720), "PPSH41": WeaponOffsets(0x12B844, 0x12B724),
-        # Rifles
-        "Kar98": WeaponOffsets(0x12B84C, 0x12B74C), "Snooper Rifle": WeaponOffsets(0x12B850, 0x12B750), "Mosin Nagant": WeaponOffsets(0x12B854, 0x12B754),
-        # Assault Rifles
-        "FG42": WeaponOffsets(0x12B86C, 0x12B74C), "Stg44": WeaponOffsets(0x12B868, 0x12B768), "BAR": WeaponOffsets(0x12B870, 0x12B75C),
-        # Grenades
-        "Grenades": WeaponOffsets(0x12B898, 0x12B898), "Pineapples": WeaponOffsets(0x12B89C, 0x12B89C), "Dynamite": WeaponOffsets(0x12B8A0, 0x12B8A0),
-        "Poison Gas": WeaponOffsets(0x0, 0x0), # I currently don't have this item since it is given in a specific chapter and the saves are gone.
-        # Shotguns
-        "Ithaca": WeaponOffsets(0x12B874, 0x12B774),
-        # Automatic Rifles
-        "G43": WeaponOffsets(0x12B860, 0x12B74C), "M1 Garand": WeaponOffsets(0x12B85C, 0x12B75C), "M1 Garand Grenade": WeaponOffsets(0x12B8D4, 0x12B7D4),
-        # Heavy Weapons
-        "Panzerfaust": WeaponOffsets(0x12B888, 0x12B788), "Flamethrower": WeaponOffsets(0x12B88C, 0x12B88C), "MG42": WeaponOffsets(0x12B884, 0x12B784),
-        "Browning": WeaponOffsets(0x12B880, 0x12B784),
-        # Secret Weapons
-        "Venom Gun": WeaponOffsets(0x12B890, 0x12B784), "Tesla": WeaponOffsets(0x12B894, 0x12B894)
-    },
-    "Inventory": {
-
-    },
-};
-
 class Trainer:
     def __init__(self) -> None:
         self.Game = GameProcess();
         self.Tabs: dict[str, TabEntry] = {};
+        self.Data: dict =  { "Weapons": Weapons, "Ammos": Ammos };
+        self.Offsets: dict = self.GetOffsets();
         self.Options: dict[str, str] = {};
         self.Config: dict = DefaultConfig;
         self.Window: dict = { "Dragging": False, "UpdateTime": time.time() };
 
     def Attach(self) -> bool:
         try:
-            self.Game.Process = pyMeow.open_process(PROCESSNAME);
-            self.Game.ModuleBase = pyMeow.get_module(self.Game.Process, PROCESSNAME)["base"];
-            self.Game.QaGameBase = pyMeow.get_module(self.Game.Process, QAGAMEDLL)["base"];
+            self.Game.Process = pyMeow.open_process(ProcessName);
+            self.Game.ModuleBase = pyMeow.get_module(self.Game.Process, ProcessName)["base"];
+            self.Game.QaGameBase = pyMeow.get_module(self.Game.Process, QaGameDLL)["base"];
             return True;
         except: return False;
 
-    def IsAddressValid(self, Address):
+    def IsAddressValid(self, Address) -> bool:
         try:
             pyMeow.r_byte(self.Game.Process, Address);
             return True;
         except: return False;
 
-    def SetHealth(self, Value: int) -> None:
-        if (not self.Game.IsOpen or not self.Game.QaGameBase): return;
+    def GetOffsets(self) -> dict:
         try:
-            HealthAddress = self.Game.QaGameBase + Offsets["Health"];
-            if (self.IsAddressValid(HealthAddress)):
-                pyMeow.w_int(self.Game.Process, HealthAddress, Value);
-        except Exception as ex:
-            print(f"Couldn't set health, Error: {ex}");
+            Path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Offsets.json");
+            if (os.path.exists(Path)):
+                with open(Path) as File:
+                    return json.load(File);
+            return {};
+        except Exception as Error:
+            print(f"Couldn't get offsets, Error: {Error}");
+            return {};
+
+    def SetHealth(self, Value: int) -> None:
+        if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return;
+        try:
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["HealthPointer"]);
+            if (self.IsAddressValid(Address)):
+                pyMeow.w_int(self.Game.Process, Address + self.Offsets["Health"], Value);
+        except Exception as Error:
+            print(f"Couldn't set health, Error: {Error}");
             return;
 
     def SetArmor(self, Value: int) -> None:
-        if (not self.Game.IsOpen or not self.Game.QaGameBase): return;
+        if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            ArmorAddress = self.Game.QaGameBase + Offsets["Armor"];
-            if (self.IsAddressValid(ArmorAddress)):
-                pyMeow.w_int(self.Game.Process, ArmorAddress, Value);
-        except Exception as ex:
-            print(f"Couldn't set armor, Error: {ex}");
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            if (self.IsAddressValid(Address)):
+                pyMeow.w_int(self.Game.Process, Address + self.Offsets["Armor"], Value);
+        except Exception as Error:
+            print(f"Couldn't set armor, Error: {Error}");
             return;
 
     def GetCurrentWeapon(self) -> str:
-        if (not self.Game.IsOpen or not self.Game.QaGameBase): return "Unknown";
+        if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return "Unknown";
         try:
-            WeaponAddress = self.Game.QaGameBase + Offsets["CurrentWeapon"];
-            if (self.IsAddressValid(WeaponAddress)):
-                Weapon = pyMeow.r_int64(self.Game.Process, WeaponAddress);
-                if (Weapon in Weapons):
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            if (self.IsAddressValid(Address)):
+                Weapon = pyMeow.r_int(self.Game.Process, Address + self.Offsets["CurrentWeapon"]);
+                if (Weapon is not None):
                     return Weapons[Weapon];
             return "Unknown";
-        except Exception as ex:
-            print(f"Couldn't get the current weapon, Error: {ex}");
+        except Exception as Error:
+            print(f"Couldn't get the current weapon, Error: {Error}");
             return "Unknown";
 
-    def SetAmmo(self, WeaponValue: int | None, Value: int, Type: str) -> None:
-        if (not self.Game.IsOpen or not self.Game.QaGameBase): return;
+    def SetAmmo(self, Value: int, Type: str) -> None:
+        if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
             Weapon = self.GetCurrentWeapon();
-            if (Weapon and Weapon is not None and Weapon != "Unknown"):
-                if (Type != "Both"):
-                    CurrentWeaponAddress = self.Game.QaGameBase + getattr(Offsets["Weapons"][Weapon], Type);
-                    if (self.IsAddressValid(CurrentWeaponAddress)):
-                        pyMeow.w_int(self.Game.Process, CurrentWeaponAddress, Value);
-                else:
-                    CurrentBulletsWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon].Bullets;
-                    if (self.IsAddressValid(CurrentBulletsWeaponAddress)):
-                        pyMeow.w_int(self.Game.Process, CurrentBulletsWeaponAddress, Value);
-                    CurrentAmmoWeaponAddress = self.Game.QaGameBase + Offsets["Weapons"][Weapon].Ammo;
-                    if (self.IsAddressValid(CurrentAmmoWeaponAddress)):
-                        pyMeow.w_int(self.Game.Process, CurrentAmmoWeaponAddress, Value);
-        except Exception as ex:
-            print(f"Couldn't set ammo, Error: {ex}");
+            if (not Weapon or Weapon in ("None", "Unknown")): return;
+            Index = next((Index for (Index, Name) in self.Data["Weapons"].items() if (Name == Weapon)), None)
+            if (Index is None): return;
+            if (Type in ("Bullets", "Both")):
+                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+                if (self.IsAddressValid(Address)):
+                    BulletsAddress = Address + self.Offsets["BulletsArray"] + Index * 4;
+                    if (self.IsAddressValid(BulletsAddress)):
+                        pyMeow.w_int(self.Game.Process, BulletsAddress, Value);
+            if Type in ("Ammo", "Both"):
+                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+                AmmoIndex = Index;
+                for (WeaponTuple, AmmoValue) in Ammos.items():
+                    if (Weapon in WeaponTuple):
+                        AmmoIndex = AmmoValue;
+                        break;
+                AmmoAddress = Address + self.Offsets["AmmoArray"] + AmmoIndex * 4;
+                if (self.IsAddressValid(AmmoAddress)):
+                    pyMeow.w_int(self.Game.Process, AmmoAddress, Value);
+        except Exception as Error:
+            print(f"Couldn't set ammo, Error: {Error}");
             return;
 
-    def SetWeaponActionValue(self, Value: int) -> None:
-        if (not self.Game.Process or not self.Game.QaGameBase): return;
-        try:
-            Address = self.Game.QaGameBase + Offsets["WeaponAction"];
-            if (self.IsAddressValid(Address)):
-                pyMeow.w_int(self.Game.Process, Address, Value);
-        except Exception as ex:
-            print(f"Couldn't set weapon action value, Error: {ex}");
-
     def SetStamina(self, Value: int) -> None:
-        if (not self.Game.Process or not self.Game.QaGameBase): return;
+        if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = self.Game.QaGameBase + Offsets["Stamina"];
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
             if (self.IsAddressValid(Address)):
-                pyMeow.w_int(self.Game.Process, Address, Value);
-        except Exception as ex:
-            print(f"Couldn't set stamina, Error: {ex}");
+                pyMeow.w_int(self.Game.Process, Address + self.Offsets["Stamina"], Value);
+        except Exception as Error:
+            print(f"Couldn't set stamina, Error: {Error}");
+
+    def SetWeaponActionValue(self, Value: int) -> None:
+        if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
+        try:
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            if (self.IsAddressValid(Address)):
+                pyMeow.w_int(self.Game.Process, Address + self.Offsets["WeaponAction"], Value);
+        except Exception as Error:
+            print(f"Couldn't set weapon action value, Error: {Error}");
+
+    def SetWeaponSpread(self, Value: int) -> None:
+        if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
+        try:
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            if (self.IsAddressValid(Address)):
+                pyMeow.w_int(self.Game.Process, Address + self.Offsets["Spread"], Value);
+        except Exception as Error:
+            print(f"Couldn't set spread, Error: {Error}");
 
     @staticmethod
     def OnExit() -> None:
@@ -178,8 +171,8 @@ class Trainer:
         UI.show_item(Name);
 
     def HideAllTabs(self) -> None:
-        for entry in self.Tabs.values():
-            UI.hide_item(entry.WindowTag);
+        for Entry in self.Tabs.values():
+            UI.hide_item(Entry.WindowTag);
 
     def SwitchTab(self, Name: str) -> None:
         self.HideAllTabs();
@@ -187,18 +180,18 @@ class Trainer:
 
     def CreateTab(self, Name: str) -> str | None:
         if (Name in self.Tabs): return None;
-        WinTag = f"Tab_{Name}";
-        BtnTag = f"Button_{Name}";
-        UI.add_child_window(label = Name, tag = WinTag, width = TABWIDTH, height = TABHEIGHT, pos = (120, 22));
-        UI.add_button(label = Name, tag = BtnTag, parent = "TabHolder", width = TABBUTTONWIDTH, height = TABBUTTONHEIGHT, callback = lambda: self.SwitchTab(WinTag));
-        self.Tabs[Name] = TabEntry(WinTag, BtnTag);
-        return WinTag;
+        WindowTag = f"Tab_{Name}";
+        ButtonTag = f"Button_{Name}";
+        UI.add_child_window(label = Name, tag = WindowTag, width = TabWidth, height = TabHeight, pos = (120, 22));
+        UI.add_button(label = Name, tag = ButtonTag, parent = "TabHolder", width = TabButtonWidth, height = TabButtonHeight, callback = lambda: self.SwitchTab(WindowTag));
+        self.Tabs[Name] = TabEntry(WindowTag, ButtonTag);
+        return WindowTag;
 
     def DeleteTab(self, Name: str) -> None:
         if (Name not in self.Tabs): return;
-        entry = self.Tabs.pop(Name);
-        UI.delete_item(entry.WindowTag);
-        UI.delete_item(entry.ButtonTag);
+        Entry = self.Tabs.pop(Name);
+        UI.delete_item(Entry.WindowTag);
+        UI.delete_item(Entry.ButtonTag);
 
     def AddToggle(self, Parent: str, Tag: str, Label: str) -> str | None:
         if (not Tag or Tag in self.Options): return None;
@@ -254,13 +247,15 @@ class Trainer:
         while UI.is_dearpygui_running():
             UI.set_value("CurrentWeaponLabel", f"Current Weapon: {self.GetCurrentWeapon()}");
             if (self.GetValue("AmmoToggle")):
-                self.SetAmmo(1, self.GetValue("AmmoValue"), self.GetValue("AmmoType"));
+                self.SetAmmo(self.GetValue("AmmoValue"), self.GetValue("AmmoType"));
             time.sleep(0.1);
 
     def LoopGunMods(self):
         while UI.is_dearpygui_running():
             if (self.GetValue("WeaponModsTimerToggle")):
                 self.SetWeaponActionValue(0);
+            if (self.GetValue("WeaponModsMinimumSpreadToggle")):
+                self.SetWeaponSpread(-0);
             time.sleep(self.GetValue("WeaponModsLoopDelay"));
 
     def LoopStamina(self):
@@ -272,40 +267,41 @@ class Trainer:
     def BuildPlayerTab(self, Tab: str) -> None:
         self.AddLabel(Tab, "", "Health Changer");
         self.AddInputInt(Tab, "HealthValue", { "label": "Value", "min_value": 0, "max_value": 16959, "max_clamped": True, "min_clamped": True, "default_value": self.Config["HealthValue"], "width": 150 });
-        self.AddButton(Tab, { "label": "Change", "width": 150, "height": TABBUTTONHEIGHT, "callback": lambda: self.SetHealth(self.GetValue("HealthValue")) });
+        self.AddButton(Tab, { "label": "Change", "width": 150, "height": TabButtonHeight, "callback": lambda: self.SetHealth(self.GetValue("HealthValue"))});
         self.AddToggle(Tab, "HealthToggle", "Loop");
         self.AddDivider(Tab);
         self.AddLabel(Tab, "", "Armor Changer");
         self.AddInputInt(Tab, "ArmorValue", { "label": "Value", "min_value": 0, "max_value": 16959, "max_clamped": True, "min_clamped": True, "default_value": self.Config["ArmorValue"], "width": 150 });
-        self.AddButton(Tab, {"label": "Change", "width": 150, "height": TABBUTTONHEIGHT, "callback": lambda: self.SetArmor(self.GetValue("ArmorValue"))});
+        self.AddButton(Tab, {"label": "Change", "width": 150, "height": TabButtonHeight, "callback": lambda: self.SetArmor(self.GetValue("ArmorValue"))});
         self.AddToggle(Tab, "ArmorToggle", "Loop");
         self.AddDivider(Tab);
         self.AddLabel(Tab, "", "Infinite Stamina");
         self.AddToggle(Tab, "InfiniteStaminaToggle", "Enabled");
-        self.AddInputFloat(Tab, "InfiniteStaminaLoopDelay", { "label": "Stamina Loop Delay", "min_value": 0, "min_clamped": True, "default_value": self.Config["StaminaLoopDelay"], "format": "%.2f", "width": 150 });
+        self.AddInputFloat(Tab, "InfiniteStaminaLoopDelay", { "label": "Stamina Loop Delay", "min_value": 0.001, "min_clamped": True, "step": 0.001, "step_fast": 0.01, "default_value": self.Config["StaminaLoopDelay"], "format": "%.3f", "width": 150 });
 
     def BuildWeaponTab(self, Tab: str) -> None:
         self.AddLabel(Tab, "", "Ammo Changer");
         self.AddInputInt(Tab, "AmmoValue", { "label": "Ammo Value", "min_value": 0, "max_value": 16959, "max_clamped": True, "min_clamped": True, "default_value": self.Config["AmmoValue"], "width": 150 });
         self.AddDropdown(Tab, "AmmoType", { "label": "Ammo Type", "items": ("Ammo", "Bullets", "Both"), "default_value": "Ammo", "width": 150 });
         self.AddLabel(Tab, "CurrentWeaponLabel", "Current Weapon: None");
-        self.AddButton(Tab, { "label": "Set Ammo", "width": 150, "height": TABBUTTONHEIGHT, "callback": lambda: self.SetAmmo(1, self.GetValue("AmmoValue"), self.GetValue("AmmoType")) } );
+        self.AddButton(Tab, { "label": "Set Ammo", "width": 150, "height": TabButtonHeight, "callback": lambda: self.SetAmmo(self.GetValue("AmmoValue"), self.GetValue("AmmoType"))});
         self.AddToggle(Tab, "AmmoToggle", "Loop");
         self.AddDivider(Tab);
         self.AddLabel(Tab, "WeaponModsTitle", "Gun Mods");
-        self.AddInputFloat(Tab, "WeaponModsLoopDelay", { "label": "Gun Mods Loop Delay", "min_value": 0, "min_clamped": True, "default_value": self.Config["GunMods"]["LoopDelay"], "format": "%.3f", "width": 150 });
-        self.AddToggle(Tab, "WeaponModsTimerToggle", "Gun Timer Enabled");
+        self.AddInputFloat(Tab, "WeaponModsLoopDelay", { "label": "Gun Mods Loop Delay", "min_value": 0.001, "min_clamped": True, "step": 0.001, "step_fast": 0.01, "default_value": self.Config["GunMods"]["LoopDelay"], "format": "%.3f", "width": 150 });
+        self.AddToggle(Tab, "WeaponModsTimerToggle", "Gun Timer");
+        self.AddToggle(Tab, "WeaponModsMinimumSpreadToggle", "Minimum Spread");
 
     def BuildSettingsTab(self, Tab: str) -> None:
         UI.set_item_pos("Button_Settings", [8, 280]);
 
     def BuildUI(self) -> None:
         UI.create_context();
-        Viewport = UI.create_viewport(title = "RealRTCW Trainer", width = WINDOWWIDTH, height = WINDOWHEIGHT, decorated = False, resizable = False);
+        Viewport = UI.create_viewport(title = "RealRTCW Trainer", width = WindowWidth, height = WindowHeight, decorated = False, resizable = False);
         UI.setup_dearpygui();
         UI.show_viewport();
-        with UI.window(label = "RealRTCW Trainer", tag = "MainWindow", width = WINDOWWIDTH, height = WINDOWHEIGHT, no_title_bar = False, no_resize = True, no_move = True, no_collapse = True, no_scroll_with_mouse = True, no_scrollbar = True, on_close = self.OnExit):
-            UI.add_child_window(label = "Tabs", tag = "TabHolder", width = TABPANELWIDTH, height = TABPANELHEIGHT, pos = (5, 22));
+        with UI.window(label = "RealRTCW Trainer", tag = "MainWindow", width = WindowWidth, height = WindowHeight, no_title_bar = False, no_resize = True, no_move = True, no_collapse = True, no_scroll_with_mouse = True, no_scrollbar = True, on_close = self.OnExit):
+            UI.add_child_window(label = "Tabs", tag = "TabHolder", width = TabPanelWidth, height = TabPanelHeight, pos = (5, 22));
             PlayerTab = self.CreateTab("Player");
             WeaponTab = self.CreateTab("Weapon");
             SettingsTab = self.CreateTab("Settings");
@@ -339,11 +335,11 @@ class Trainer:
                         UI.configure_viewport(Viewport, x_pos = FinalX, y_pos = FinalY);
                         self.Window["UpdateTime"] = Current;
 
-            def ToggleViewport():
+            def HideViewport():
                 UI.minimize_viewport();
 
             with UI.handler_registry():
-                UI.add_key_press_handler(key = 161, callback = ToggleViewport)
+                UI.add_key_press_handler(key = 161, callback = HideViewport);
                 UI.add_mouse_drag_handler(0, callback = Drag);
                 UI.add_mouse_move_handler(callback = CheckDrag);
 
@@ -359,7 +355,9 @@ class Trainer:
             InfiniteStaminaThread.start();
 
     def Run(self) -> None:
-        if (not self.Attach()): return;
+        if (not self.Attach()):
+            print("Game process not found.");
+            return;
         self.BuildUI();
         UI.start_dearpygui();
 
