@@ -39,7 +39,7 @@ class Dumper:
 
     def GetPlayerPointer(self) -> int:
         try:
-            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/PlayerPointer.json");
+            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/Data/PlayerPointer.json");
             if (Response.status_code == 200):
                 RawData = Response.json();
                 return int(RawData.get("PlayerPointer"), 16);
@@ -50,7 +50,7 @@ class Dumper:
 
     def GetPatterns(self) -> dict:
         try:
-            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/Patterns.json");
+            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/Data/Patterns.json");
             if (Response.status_code == 200):
                 Patterns = {};
                 RawData = Response.json();
