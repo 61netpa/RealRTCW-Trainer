@@ -1,5 +1,6 @@
 from __future__ import annotations;
 from dataclasses import dataclass;
+from Dumper import Dumper;
 import os;
 import json;
 import time;
@@ -67,6 +68,7 @@ class Trainer:
 
     def GetOffsets(self) -> dict:
         try:
+            Dumper().Run();
             Path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Offsets.json");
             if (os.path.exists(Path)):
                 with open(Path) as File:
