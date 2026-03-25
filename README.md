@@ -1,5 +1,3 @@
-# THIS IS CURRENTLY BROKEN AS OF 25TH MARCH 2026 DUE TO THE LATEST UPDATE.
-
 # RealRTCW-Trainer
 RealRTCW utility app that has multiple Quality of Life features using [PyMeow](https://github.com/qb-0/pyMeow).
 
@@ -11,11 +9,11 @@ RealRTCW utility app that has multiple Quality of Life features using [PyMeow](h
 ## Usage
 1. Launch RealRTCW from Steam / launcher of your choice.
 2. Load into the game.
-3. Run the Main.py.
+3. Run `Dumper.py`, when it's done dumping run `Main.py`.
 
 ## Features
-- Infinite Health
-- Infinite Armor
-- Infinite Stamina
+- Health Modifier
+- Armor Modifier
+- Stamina Modifier
 - Ammo Modifier
 - Gun Mods
