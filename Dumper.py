@@ -93,6 +93,3 @@ class Dumper:
             print("Successfully dumped offsets!");
         except Exception as Error:
             print(f"Couldn't dump offsets, Error: {Error}");
-
-if (__name__ == "__main__"):
-    Dumper().Run();
