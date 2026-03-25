@@ -9,7 +9,7 @@ RealRTCW utility app that has multiple Quality of Life features using [PyMeow](h
 ## Usage
 1. Launch RealRTCW from Steam / launcher of your choice.
 2. Load into the game.
-3. Run `Dumper.py`, when it's done dumping run `Main.py`.
+3. Run `Main.py`.
 
 ## Features
 - Health Modifier
