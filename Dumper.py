@@ -6,8 +6,6 @@ import pyMeow;
 ProcessName = "RealRTCW.x64.exe";
 QaGameDll = "qagame_sp_x64.dll";
 
-PlayerPointer = 0x004F0D48;
-
 @dataclass
 class GameProcess:
     Process: object | None = None;
@@ -28,8 +26,8 @@ class Dumper:
     def __init__(self):
         self.Game = GameProcess();
         self.Offsets = OffsetBase;
-        self.Patterns: dict = {};
-        self.PlayerPointer: int = PlayerPointer;
+        self.Patterns: dict = self.GetPatterns();
+        self.PlayerPointer: int = self.GetPlayerPointer();
 
     def Attach(self) -> bool:
         try:
@@ -39,9 +37,20 @@ class Dumper:
             return True;
         except: return False;
 
-    def GetPatterns(self):
+    def GetPlayerPointer(self) -> int:
         try:
-            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/refs/heads/main/Patterns.json");
+            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/PlayerPointer.json");
+            if (Response.status_code == 200):
+                RawData = Response.json();
+                return int(RawData.get("PlayerPointer"), 16);
+            return 0;
+        except Exception as Error:
+            print(f"Couldn't get the player pointer, Error: {Error}");
+            return 0;
+
+    def GetPatterns(self) -> dict:
+        try:
+            Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/Patterns.json");
             if (Response.status_code == 200):
                 Patterns = {};
                 RawData = Response.json();
@@ -71,7 +80,6 @@ class Dumper:
             print("Unable to dump offsets due to game process being not found.");
             return;
         try:
-            self.Patterns = self.GetPatterns();
             self.Offsets["Health"] = self.DumpOffset(self.Patterns["Health"], "Int");
             self.Offsets["Armor"] = self.DumpOffset(self.Patterns["Armor"], "Int");
             self.Offsets["Stamina"] = self.DumpOffset(self.Patterns["Stamina"], "Int");
