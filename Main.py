@@ -81,7 +81,7 @@ class Trainer:
     def SetHealth(self, Value: int) -> None:
         if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["HealthPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["HealthPointer"], 16));
             if (self.IsAddressValid(Address)):
                 pyMeow.w_int(self.Game.Process, Address + self.Offsets["Health"], Value);
         except Exception as Error:
@@ -91,7 +91,7 @@ class Trainer:
     def SetArmor(self, Value: int) -> None:
         if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
             if (self.IsAddressValid(Address)):
                 pyMeow.w_int(self.Game.Process, Address + self.Offsets["Armor"], Value);
         except Exception as Error:
@@ -101,7 +101,7 @@ class Trainer:
     def GetCurrentWeapon(self) -> str:
         if (not self.Game.IsOpen or not self.Game.QaGameBase or self.Offsets == {}): return "Unknown";
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
             if (self.IsAddressValid(Address)):
                 Weapon = pyMeow.r_int(self.Game.Process, Address + self.Offsets["CurrentWeapon"]);
                 if (Weapon is not None):
@@ -119,13 +119,13 @@ class Trainer:
             Index = next((Index for (Index, Name) in self.Data["Weapons"].items() if (Name == Weapon)), None)
             if (Index is None): return;
             if (Type in ("Bullets", "Both")):
-                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
                 if (self.IsAddressValid(Address)):
                     BulletsAddress = Address + self.Offsets["BulletsArray"] + Index * 4;
                     if (self.IsAddressValid(BulletsAddress)):
                         pyMeow.w_int(self.Game.Process, BulletsAddress, Value);
             if Type in ("Ammo", "Both"):
-                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+                Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
                 AmmoIndex = Index;
                 for (WeaponTuple, AmmoValue) in Ammos.items():
                     if (Weapon in WeaponTuple):
@@ -141,7 +141,7 @@ class Trainer:
     def SetStamina(self, Value: int) -> None:
         if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
             if (self.IsAddressValid(Address)):
                 pyMeow.w_int(self.Game.Process, Address + self.Offsets["Stamina"], Value);
         except Exception as Error:
@@ -150,7 +150,7 @@ class Trainer:
     def SetWeaponActionValue(self, Value: int) -> None:
         if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
             if (self.IsAddressValid(Address)):
                 pyMeow.w_int(self.Game.Process, Address + self.Offsets["WeaponAction"], Value);
         except Exception as Error:
@@ -159,7 +159,7 @@ class Trainer:
     def SetWeaponSpread(self, Value: int) -> None:
         if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
         try:
-            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + self.Offsets["PlayerPointer"]);
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
             if (self.IsAddressValid(Address)):
                 pyMeow.w_int(self.Game.Process, Address + self.Offsets["Spread"], Value);
         except Exception as Error:
