@@ -4,7 +4,7 @@ import requests;
 import pyMeow;
 
 ProcessName = "RealRTCW.x64.exe";
-QaGameDll = "qagame_sp_x64.dll";
+QaGameDLL = "qagame_sp_x64.dll";
 
 @dataclass
 class GameProcess:
@@ -22,29 +22,29 @@ class Offset:
 
 class Dumper:
     def __init__(self):
-        self.Game = GameProcess();
+        self.Game: GameProcess = GameProcess();
         self.Offsets: dict = {};
         self.Patterns: dict = self.GetPatterns();
-        self.PlayerPointer: int = self.GetPlayerPointer();
+        self.PlayerPointer: str = self.GetPlayerPointer();
 
     def Attach(self) -> bool:
         try:
             self.Game.Process = pyMeow.open_process(ProcessName);
             self.Game.ModuleBase = pyMeow.get_module(self.Game.Process, ProcessName)["base"];
-            self.Game.QaGameBase = pyMeow.get_module(self.Game.Process, QaGameDll)["base"];
+            self.Game.QaGameBase = pyMeow.get_module(self.Game.Process, QaGameDLL)["base"];
             return True;
         except: return False;
 
-    def GetPlayerPointer(self) -> int:
+    def GetPlayerPointer(self) -> str:
         try:
             Response = requests.get("https://raw.githubusercontent.com/61netpa/RealRTCW-Trainer/main/Data/PlayerPointer.json");
             if (Response.status_code == 200):
                 RawData = Response.json();
-                return int(RawData.get("PlayerPointer"), 16);
-            return 0;
+                return hex(int(RawData.get("PlayerPointer"), 16));
+            return "0x0";
         except Exception as Error:
             print(f"Couldn't get the player pointer, Error: {Error}");
-            return 0;
+            return "0x0";
 
     def GetPatterns(self) -> dict:
         try:
@@ -63,7 +63,7 @@ class Dumper:
     def DumpOffset(self, Pattern: Offset, Type: str) -> int | None:
         if (not self.Game.Process or not self.Game.QaGameBase): return None;
         try:
-            Address = pyMeow.aob_scan_module(self.Game.Process, QaGameDll, Pattern.Pattern);
+            Address = pyMeow.aob_scan_module(self.Game.Process, QaGameDLL, Pattern.Pattern);
             if (Address is None): return None;
             if (Type == "Int"):
                 return pyMeow.r_int(self.Game.Process, Address[0] + Pattern.Skip);
@@ -87,7 +87,7 @@ class Dumper:
             self.Offsets["WeaponAction"] = self.DumpOffset(self.Patterns["WeaponAction"], "Byte");
             self.Offsets["Spread"] = self.DumpOffset(self.Patterns["Spread"], "Int");
             with open("Offsets.json", "w") as File:
-                json.dump({ "HealthPointer": self.PlayerPointer, "PlayerPointer": self.PlayerPointer - 8, **self.Offsets }, File, indent = 4);
+                json.dump({ "HealthPointer": self.PlayerPointer, "PlayerPointer": hex(int(self.PlayerPointer, 16) - 8), **self.Offsets }, File, indent = 4);
             print("Successfully dumped offsets!");
         except Exception as Error:
             print(f"Couldn't dump offsets, Error: {Error}");
