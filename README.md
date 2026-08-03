@@ -9,7 +9,9 @@ RealRTCW utility app that has multiple Quality of Life features using [PyMeow](h
 ## Usage
 1. Launch RealRTCW from Steam / launcher of your choice.
 2. Load into the game.
-3. Run `Main.py`.
+3. Open a Command Prompt in the same folder as the files using `cd`.
+4. Run `pip install -r requirements.txt` to install the dependencies.
+5. Run `Main.py`.
 
 ## Features
 - Health Modifier
