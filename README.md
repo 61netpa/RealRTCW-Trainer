@@ -4,6 +4,7 @@ RealRTCW utility app that has multiple Quality of Life features using [PyMeow](h
 ## Requirements
 - Python 3.x
 - [PyMeow](https://github.com/qb-0/pyMeow)
+- requests (install using `pip install requests`)
 - dearpygui (install using `pip install dearpygui`)
 
 ## Usage
