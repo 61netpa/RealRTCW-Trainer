@@ -1,0 +1,4 @@
+requests
+dearpygui
+# Since pyMeow is not on PyPI, it will be installed from their official github. You can also manually install it if you are sketched about it.
+https://github.com/qb-0/pyMeow/releases/download/1.73.42/pyMeow-1.73.42.zip
