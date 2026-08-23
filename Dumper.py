@@ -86,6 +86,7 @@ class Dumper:
             self.Offsets["AmmoArray"] = self.DumpOffset(self.Patterns["AmmoArray"], "Int");
             self.Offsets["WeaponAction"] = self.DumpOffset(self.Patterns["WeaponAction"], "Byte");
             self.Offsets["Spread"] = self.DumpOffset(self.Patterns["Spread"], "Int");
+            self.Offsets["Overheat"] = self.DumpOffset(self.Patterns["Overheat"], "Int");
             with open("Offsets.json", "w") as File:
                 json.dump({ "HealthPointer": self.PlayerPointer, "PlayerPointer": hex(int(self.PlayerPointer, 16) - 8), **self.Offsets }, File, indent = 4);
             print("Successfully dumped offsets!");
