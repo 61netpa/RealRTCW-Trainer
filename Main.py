@@ -43,6 +43,7 @@ class TabEntry:
     ButtonTag: str;
 
 class Trainer:
+    # I genuinely hate this code structure 😭. I will most likely rewrite this.
     def __init__(self) -> None:
         self.Game = GameProcess();
         self.Tabs: dict[str, TabEntry] = {};
@@ -165,6 +166,18 @@ class Trainer:
         except Exception as Error:
             print(f"Couldn't set spread, Error: {Error}");
 
+    def SetWeaponOverheat(self, Value: int) -> None:
+        if (not self.Game.Process or not self.Game.QaGameBase or self.Offsets == {}): return;
+        try:
+            Address = pyMeow.r_int64(self.Game.Process, self.Game.QaGameBase + int(self.Offsets["PlayerPointer"], 16));
+            if (self.IsAddressValid(Address)):
+                WeaponID = pyMeow.r_int(self.Game.Process, Address + self.Offsets["CurrentWeapon"]);
+                if (WeaponID is not None):
+                    pyMeow.w_int(self.Game.Process, Address + (WeaponID * 4) + 0x04, Value);
+                    pyMeow.w_int(self.Game.Process, Address + (WeaponID * 4) + self.Offsets["Overheat"], Value);
+        except (Exception) as Error:
+            print(f"Couldn't set overheat, Error: {Error}");
+
     @staticmethod
     def OnExit() -> None:
         UI.destroy_context();
@@ -258,6 +271,8 @@ class Trainer:
                 self.SetWeaponActionValue(0);
             if (self.GetValue("WeaponModsMinimumSpreadToggle")):
                 self.SetWeaponSpread(-0);
+            if (self.GetValue("WeaponModsNoOverheat")):
+                self.SetWeaponOverheat(0);
             time.sleep(self.GetValue("WeaponModsLoopDelay"));
 
     def LoopStamina(self):
@@ -293,6 +308,7 @@ class Trainer:
         self.AddInputFloat(Tab, "WeaponModsLoopDelay", { "label": "Gun Mods Loop Delay", "min_value": 0.001, "min_clamped": True, "step": 0.001, "step_fast": 0.01, "default_value": self.Config["GunMods"]["LoopDelay"], "format": "%.3f", "width": 150 });
         self.AddToggle(Tab, "WeaponModsTimerToggle", "Gun Timer");
         self.AddToggle(Tab, "WeaponModsMinimumSpreadToggle", "Minimum Spread");
+        self.AddToggle(Tab, "WeaponModsNoOverheat", "No Overheat");
 
     def BuildSettingsTab(self, Tab: str) -> None:
         UI.set_item_pos("Button_Settings", [8, 280]);
